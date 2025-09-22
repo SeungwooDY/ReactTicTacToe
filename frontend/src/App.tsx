@@ -1,24 +1,49 @@
 import React from "react";
 import { useState } from "react";
+import { getAIMove } from "./api";
 
 export default function Board() {
   const [squares, setSquares] = useState(Array(9).fill(null));
-  const [xNext, setXNext] = useState(true);
+  // const [xNext, setXNext] = useState(true);
 
-  function handleClick(i) {
+  const to2D = (squares: (string | null)[][] | any) => [
+    [squares[0], squares[1], squares[2]],
+    [squares[3], squares[4], squares[5]],
+    [squares[6], squares[7], squares[8]],
+  ];
+
+  const to1D = (board: (string | null)[][]) =>
+    board.flat();
+
+  async function handleClick(i) {
     if (squares[i]) {
       return;
     }
     /* const [player, setPlayer] = useState(xNext); */
     const nextSquares = squares.slice();
-    if (xNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
+    nextSquares[i] = "X";
     setSquares(nextSquares);
-    setXNext(!xNext);
+    // if (xNext) {
+    //   nextSquares[i] = "X";
+    // } else {
+    //   nextSquares[i] = "O";
+    // }
+    // setXNext(!xNext);
+
+    const board2D = to2D(nextSquares)
+
+    const aiMove = await getAIMove(board2D);
+
+    if (aiMove) {
+      const { row, col } = aiMove;
+      const aiIndex = row * 3 + col; // (0, 2) in a 2d array is the same as the third index (2) in a 1d array
+      const updatedSquares = nextSquares.slice();
+      updatedSquares[aiIndex] = "O";
+      setSquares(updatedSquares);
+    }
   }
+
+  
 
   return (
     <>

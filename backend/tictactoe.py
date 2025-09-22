@@ -38,7 +38,7 @@ def result(board, action):
         raise Exception("Invalid action")
 
     new_board = copy.deepcopy(board)
-    new_board[action[0], action[1]] = player(board)
+    new_board[action[0]][action[1]] = player(board)
     return new_board
 
 
