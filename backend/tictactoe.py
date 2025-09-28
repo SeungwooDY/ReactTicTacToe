@@ -8,7 +8,13 @@ EMPTY = None
 
 # returns starting state of board
 def initial_state():
-    return [[EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY], [EMPTY, EMPTY, EMPTY]]
+    return [
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+        [EMPTY, EMPTY, EMPTY, EMPTY, EMPTY],
+    ]
 
 
 # returns player with next turn
@@ -23,8 +29,8 @@ def player(board):
 def actions(board):
     possible_actions = set()
 
-    for i in range(3):
-        for j in range(3):
+    for i in range(5):
+        for j in range(5):
             if board[i][j] is EMPTY:
                 possible_actions.add((i, j))
     return possible_actions
@@ -43,17 +49,33 @@ def result(board, action):
 
 
 # returns the winner of the game (if one exists)
-def winner(board):
-    for i in range(3):
-        if board[0][i] == board[1][i] == board[2][i] != EMPTY:
+def winner(board):  # checking columns
+    for i in range(5):
+        if (
+            board[0][i]
+            == board[1][i]
+            == board[2][i]
+            == board[3][i]
+            == board[4][i]
+            != EMPTY
+        ):
             return board[0][i]
-        elif board[i][0] == board[i][1] == board[i][2] != EMPTY:
+        elif (  # checking rows
+            board[i][0]
+            == board[i][1]
+            == board[i][2]
+            == board[i][3]
+            == board[i][4]
+            != EMPTY
+        ):
             return board[i][0]
 
-    if (board[0][0] == board[1][1] == board[2][2] != EMPTY) or board[0][2] == board[1][
-        1
-    ] == board[2][0] != EMPTY:
-        return board[1][1]
+    if (
+        board[0][0] == board[1][1] == board[2][2] == board[3][3] == board[4][4] != EMPTY
+    ) or board[0][4] == board[1][3] == board[2][2] == board[3][1] == board[4][
+        0
+    ] != EMPTY:
+        return board[2][2]
 
 
 # returns true if game is over, false otherwise
@@ -61,8 +83,8 @@ def end(board):
     if winner(board) is not None:
         return True
 
-    for i in range(3):
-        for j in range(3):
+    for i in range(5):
+        for j in range(5):
             if board[i][j] is EMPTY:
                 return False
     return True
@@ -79,39 +101,44 @@ def utility(board):
 
 
 # returns optimal action for current player
-def minimax(board):
+def minimax(board, depth_limit):
     if end(board):
         return None
 
     current = player(board)
 
-    def max_value(board):  # best move for X
-        if end(board):
+    print("Current player {current} with depth {depth_limit}")
+
+    def max_value(board, depth_limit):
+        print("Max value depth: {depth_limit}")  # best move for X
+        if end(board) or depth_limit == 0:
             return utility(board), None  # no moves left, return utility
         v = -math.inf
         best_action = None
         for action in actions(board):
-            min_v, _ = min_value(result(board, action))
+            min_v, _ = min_value(result(board, action), depth_limit - 1)
             if min_v > v:
                 v = min_v
                 best_action = action
         return v, best_action
 
-    def min_value(board):
-        if end(board):
+    def min_value(board, depth_limit):
+        print("Min value depth: {depth_limit}")  # best move for X
+        if end(board) or depth_limit == 0:
             return utility(board), None
         v = math.inf  # type float
         best_action = None
         for action in actions(board):
-            max_v, _ = max_value(result(board, action))
+            max_v, _ = max_value(result(board, action), depth_limit - 1)
             if max_v < v:
                 v = max_v
                 best_action = action
         return v, best_action
 
     if current == X:
-        _, move = max_value(board)
+        _, move = max_value(board, depth_limit)
     else:
-        _, move = min_value(board)
+        _, move = min_value(board, depth_limit)
 
+    print(f"Chosen move: {move}")
     return move

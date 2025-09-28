@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional
-from tictactoe import end, minimax, EMPTY
+from tictactoe import end, minimax, winner, EMPTY
+from difficulty import set_difficulty, set_board
 
 app = FastAPI()
 
@@ -29,11 +30,12 @@ class BoardRequest(BaseModel):
 def ai_move(request: BoardRequest):
     board = request.board
     if end(board):
-        return {"row": None, "col": None}
-    move = minimax(board)
-    return {"row": move[0], "col": move[1]}
+        game_winner = winner(board)
+        return {"row": None, "col": None, "winner": game_winner}
+    move = minimax(board, 5)
+    return {"row": move[0], "col": move[1], "winner": None}
 
 
-# @app.get("/frontend", response_model=TicTacToe)
-# def get_fruits():
-#     return TicTacToe(fruits=["apple", "banana", "cherry"])
+@app.get("/set-board")
+def set_board(size: int):
+    return size

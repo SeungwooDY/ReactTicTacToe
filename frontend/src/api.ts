@@ -8,9 +8,12 @@ export async function getAIMove(board: (string | null)[][]) {
       body: JSON.stringify({ board }),
     });
 
-    return await response.json();
-  
     const data = await response.json();
     return data; // { row: 1, col: 2 }
   }
-  
+
+export async function setBoard(int: number) {
+  const res: Response = await fetch("http://localhost:8000/set-board")
+  const data: number = await res.json();
+  return data
+}
