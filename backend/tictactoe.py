@@ -109,36 +109,42 @@ def minimax(board, depth_limit):
 
     print("Current player {current} with depth {depth_limit}")
 
-    def max_value(board, depth_limit):
+    def max_value(board, depth_limit, alpha, beta):
         print("Max value depth: {depth_limit}")  # best move for X
         if end(board) or depth_limit == 0:
             return utility(board), None  # no moves left, return utility
         v = -math.inf
         best_action = None
         for action in actions(board):
-            min_v, _ = min_value(result(board, action), depth_limit - 1)
+            min_v, _ = min_value(result(board, action), depth_limit - 1, alpha, beta)
             if min_v > v:
                 v = min_v
                 best_action = action
+            alpha = max(alpha, v)
+            if v >= beta:  # alpha-beta pruning
+                break
         return v, best_action
 
-    def min_value(board, depth_limit):
+    def min_value(board, depth_limit, alpha, beta):
         print("Min value depth: {depth_limit}")  # best move for X
         if end(board) or depth_limit == 0:
             return utility(board), None
         v = math.inf  # type float
         best_action = None
         for action in actions(board):
-            max_v, _ = max_value(result(board, action), depth_limit - 1)
+            max_v, _ = max_value(result(board, action), depth_limit - 1, alpha, beta)
             if max_v < v:
                 v = max_v
                 best_action = action
+            beta = min(beta, v)
+            if v <= alpha:  # alpha-beta pruning
+                break
         return v, best_action
 
     if current == X:
-        _, move = max_value(board, depth_limit)
+        _, move = max_value(board, depth_limit, -math.inf, math.inf)
     else:
-        _, move = min_value(board, depth_limit)
+        _, move = min_value(board, depth_limit, -math.inf, math.inf)
 
     print(f"Chosen move: {move}")
     return move
